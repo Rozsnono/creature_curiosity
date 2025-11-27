@@ -1,6 +1,7 @@
 // src/models/workflow.ts
 
 export type NodeId =
+  | 'start'
   | 'sheet'
   | 'openai'
   | 'json2video'
@@ -29,6 +30,7 @@ export interface NodeDef {
   title: string;
   icon: string;
   desc: string;
+  isButton?: boolean;
   gridX: number;
   gridY: number;
   colSpan?: number;
@@ -43,6 +45,16 @@ export interface Connection {
 // Kiinduló layout + colSpan-ek
 export const NODES: NodeDef[] = [
   {
+    id: 'start',
+    title: 'Start',
+    icon: '▶️',
+    isButton: true,
+    desc: '',
+    gridX: -1,
+    gridY: 0,
+    colSpan: 1,
+  },
+  {
     id: 'sheet',
     title: 'Google Sheet',
     icon: '📄',
@@ -56,7 +68,7 @@ export const NODES: NodeDef[] = [
     title: 'OpenAI',
     icon: '🤖',
     desc: 'Scenes generálása a social media videóhoz.',
-    gridX: 2,
+    gridX: 1,
     gridY: 0,
     colSpan: 1,
   },
@@ -65,7 +77,7 @@ export const NODES: NodeDef[] = [
     title: 'json2video',
     icon: '🎬',
     desc: 'Render job indítása a scenes alapján.',
-    gridX: 4,
+    gridX: 2,
     gridY: 0,
     colSpan: 1,
   },
@@ -74,7 +86,7 @@ export const NODES: NodeDef[] = [
     title: 'Renderelés',
     icon: '⚙️',
     desc: 'Státusz pollolása, amíg elkészül a videó.',
-    gridX: 6,
+    gridX: 3,
     gridY: 0,
     colSpan: 1,
   },
@@ -83,8 +95,8 @@ export const NODES: NodeDef[] = [
     title: 'Sheet update',
     icon: '✏️',
     desc: 'Státusz és final URL mentése a Google Sheet-be.',
-    gridX: 2,
-    gridY: 1,
+    gridX: 4,
+    gridY: 0,
     colSpan: 1,
   },
   {
@@ -92,8 +104,8 @@ export const NODES: NodeDef[] = [
     title: 'Letöltés',
     icon: '⬇️',
     desc: 'A kész videófájl letöltése a json2video URL-ről.',
-    gridX: 4,
-    gridY: 1,
+    gridX: 6,
+    gridY: 0,
     colSpan: 1,
   },
   {
@@ -101,8 +113,8 @@ export const NODES: NodeDef[] = [
     title: 'YouTube',
     icon: '📺',
     desc: 'Videó feltöltése a YouTube csatornára.',
-    gridX: 6,
-    gridY: 1,
+    gridX: 7,
+    gridY: 0,
     colSpan: 1,
   },
   {
@@ -112,13 +124,14 @@ export const NODES: NodeDef[] = [
     desc: 'A teljes pipeline lefutott, videó publikálásra kész.',
     gridX: 8,
     gridY: 0,
-    colSpan: 2,
+    colSpan: 1,
   },
 ];
 
 export const NODE_ORDER: NodeId[] = NODES.map((n) => n.id);
 
 export const CONNECTIONS: Connection[] = [
+  { from: 'start', to: 'sheet' },
   { from: 'sheet', to: 'openai' },
   { from: 'openai', to: 'json2video' },
   { from: 'json2video', to: 'render' },

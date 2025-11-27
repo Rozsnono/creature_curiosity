@@ -495,7 +495,7 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full overflow-hidden bg-slate-900"
+      className="relative w-full h-full overflow-hidden cursor-grab select-none"
       style={{
         backgroundImage:
           "radial-gradient(circle, rgba(148,163,184,0.18) 1px, transparent 1px)",
@@ -542,9 +542,9 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
                   ${conn.endX} ${conn.endY}
               `}
               fill="none"
-              stroke={conn.isActive ? "#22d3ee" : "#94a3b8"}
+              stroke={conn.isActive ? "#7422eeff" : "#94a3b8"}
               strokeWidth={conn.isActive ? 3 : 2}
-              strokeDasharray={conn.isActive ? "0" : "6 4"}
+              strokeDasharray={conn.isActive ? "0" : "1 6"}
               strokeLinecap="round"
             />
           ))}
@@ -560,43 +560,43 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
             status === "done"
               ? "border-emerald-400"
               : status === "active"
-              ? "border-cyan-400"
-              : status === "error"
-              ? "border-red-400"
-              : status === "queued"
-              ? "border-slate-500"
-              : "border-slate-700";
+                ? "border-cyan-400"
+                : status === "error"
+                  ? "border-red-400"
+                  : status === "queued"
+                    ? "border-slate-500"
+                    : "border-slate-900/70";
 
           const bgColor =
             status === "done"
               ? "bg-emerald-500/10"
               : status === "active"
-              ? "bg-cyan-500/10"
-              : status === "error"
-              ? "bg-red-500/10"
-              : "bg-slate-900/90";
+                ? "bg-cyan-500/10"
+                : status === "error"
+                  ? "bg-red-500/10"
+                  : "bg-linear-to-br from-gray-950/60 to-gray-900/90";
 
           const dotColor =
             status === "done"
               ? "bg-emerald-400"
               : status === "active"
-              ? "bg-cyan-400"
-              : status === "error"
-              ? "bg-red-400"
-              : status === "queued"
-              ? "bg-slate-400"
-              : "bg-slate-600";
+                ? "bg-cyan-400"
+                : status === "error"
+                  ? "bg-red-400"
+                  : status === "queued"
+                    ? "bg-slate-400"
+                    : "bg-slate-600";
 
           const statusLabel =
             status === "done"
               ? "Kész"
               : status === "active"
-              ? "Folyamatban"
-              : status === "error"
-              ? "Hiba"
-              : status === "queued"
-              ? "Várakozik"
-              : "Tétlen";
+                ? "Folyamatban"
+                : status === "error"
+                  ? "Hiba"
+                  : status === "queued"
+                    ? "Várakozik"
+                    : "Tétlen";
 
           const centerX = pos.x;
           const centerY = pos.y;
@@ -636,49 +636,87 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
             onSelectNode(node.id);
           };
 
-          return (
-            <div
-              key={node.id}
-              data-node="true"
-              onMouseDown={handleNodeMouseDown}
-              className={`absolute flex flex-col items-center justify-center rounded-2xl border ${borderColor} ${bgColor} shadow cursor-move transition transform hover:scale-105 active:scale-95`}
-              style={{
-                left: centerX - dim.w / 2,
-                top: centerY - dim.h / 2,
-                width: dim.w,
-                height: dim.h,
-              }}
-              title={node.title}
-            >
-              <div className="absolute top-2 left-2 flex items-center gap-1 text-[10px] text-slate-300">
-                <span
-                  className={`h-2.5 w-2.5 rounded-full ${dotColor} ${
-                    status === "active" ? "animate-pulse" : ""
-                  }`}
-                />
-              </div>
+          return <Node
+            node={node}
+            centerX={centerX}
+            centerY={centerY}
+            dim={dim}
+            borderColor={borderColor}
+            bgColor={bgColor}
+            key={node.id}
+            dotColor={dotColor}
+            status={status}
+            statusLabel={statusLabel}
+            handleNodeMouseDown={handleNodeMouseDown}
+            handleInfoClick={handleInfoClick}
+          />;
 
-              <button
-                type="button"
-                data-info-btn="true"
-                onClick={handleInfoClick}
-                className="absolute bottom-2 right-2 h-5 w-5 rounded-full bg-slate-800 text-[11px] text-slate-200 flex items-center justify-center border border-slate-600 hover:bg-slate-700 hover:border-emerald-500/60 hover:text-emerald-200"
-                title="Részletek / log megnyitása"
-              >
-                i
-              </button>
-
-              <div className="text-2xl">{node.icon}</div>
-              <div className="mt-1 text-[11px] font-medium text-center px-2 leading-tight">
-                {node.title}
-              </div>
-              <div className="mt-1 text-[9px] text-slate-500">
-                {statusLabel}
-              </div>
-            </div>
-          );
         })}
       </div>
     </div>
   );
 };
+
+
+function Node({ node, centerX, centerY, dim, borderColor, bgColor, dotColor, status, statusLabel, handleNodeMouseDown, handleInfoClick }: any) {
+
+  console.log("Render Node:", node.id, status);
+
+  return (
+    <div
+      key={node.id}
+      data-node="true"
+      onMouseDown={handleNodeMouseDown}
+      className={`absolute flex flex-col items-center justify-center ${['start'].includes(node.id) ? 'rounded-l-full' : ''} ${['end'].includes(node.id) ? 'rounded-r-full' : ''} rounded-2xl border ${borderColor} ${bgColor} shadow cursor-move transition transform hover:scale-105 active:scale-95`}
+      style={{
+        left: centerX - dim.w / 2,
+        top: centerY - dim.h / 2,
+        width: dim.w,
+        height: dim.h,
+      }}
+      title={node.title}
+    >
+      {
+        !node.isButton && (
+          <div className="absolute top-2 left-2 flex items-center gap-1 text-[10px] text-slate-300">
+            <span
+              className={`h-2.5 w-2.5 rounded-full ${dotColor} ${status === "active" ? "animate-pulse" : ""
+                }`}
+            />
+          </div>
+        )
+      }
+
+      {
+        !node.isButton && (
+          <button
+            type="button"
+            data-info-btn="true"
+            onClick={handleInfoClick}
+            className="absolute bottom-2 right-2 h-5 w-5 rounded-full bg-slate-800 text-[11px] text-slate-200 flex items-center justify-center border border-slate-600 hover:bg-slate-700 hover:border-emerald-500/60 hover:text-emerald-200"
+            title="Részletek / log megnyitása"
+          >
+            i
+          </button>
+        )
+      }
+
+      {status === "queued" && (
+        <div className="h-1/2 w-1/2 z-50 rounded-full border-4 border-t-slate-500 border-b-slate-500 border-r-transparent border-l-transparent absolute animate-spin"></div>
+      )}
+
+      <div className="text-2xl">{node.icon}</div>
+      <div className="mt-1 text-[11px] font-medium text-center px-2 leading-tight">
+        {node.title}
+      </div>
+      {
+        !node.isButton && (
+
+          <div className="mt-1 text-[9px] text-slate-500">
+            {statusLabel}
+          </div>
+        )
+      }
+    </div>
+  );
+}
